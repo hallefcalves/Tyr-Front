@@ -17,6 +17,8 @@ namespace ServicosRedeN2
         public Form1()
         {
             InitializeComponent();
+            dtDados.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            dtDados.RowHeadersVisible = false;
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -27,6 +29,16 @@ namespace ServicosRedeN2
         private void tabCont_Click(object sender, EventArgs e)
         {
 
+        }
+
+        public void msgBoxErro(string msg)
+        {
+            MessageBox.Show(msg, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        public void msgBoxSucesso(string msg)
+        {
+            MessageBox.Show(msg, "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void btnCriaCont_Click(object sender, EventArgs e)
@@ -72,13 +84,15 @@ namespace ServicosRedeN2
             {//pegando o cabeçalho
                 Uri usuarioUri = response.Headers.Location;
                 //Pegando os dados do Rest e armazenando na variável usuários
-                var usuarios = response.Content.ReadAsStringAsync().Result;
-                txtDados.Text = usuarios.ToString();
+                var dadosRetorno = response.Content.ReadAsStringAsync().Result;
+                msgBoxSucesso("Container Criado com sucesso");
+                //txtDados.Text = dadosRetorno.ToString();
             }
             else
             {
-                var usuarios = response.Content.ReadAsStringAsync().Result;
-                txtDados.Text = "erro: " + usuarios.ToString();
+                var dadosRetorno = response.Content.ReadAsStringAsync().Result;
+                msgBoxErro("Erro ao criar container: "+ dadosRetorno.ToString());
+                //txtDados.Text = "erro: " + dadosRetorno.ToString();
             }
         }
 
@@ -97,13 +111,14 @@ namespace ServicosRedeN2
             {//pegando o cabeçalho
                 Uri usuarioUri = response.Headers.Location;
                 //Pegando os dados do Rest e armazenando na variável usuários
-                var usuarios = response.Content.ReadAsStringAsync().Result;
-                txtDados.Text = usuarios.ToString();
+                var dadosRetorno = response.Content.ReadAsStringAsync().Result;
+                txtDados.Text = dadosRetorno.ToString();
+                msgBoxSucesso("Imagem obtida com sucesso");
             }
             else
             {
-                var usuarios = response.Content.ReadAsStringAsync().Result;
-                txtDados.Text = "erro: " + usuarios.ToString();
+                var dadosRetorno = response.Content.ReadAsStringAsync().Result;
+                msgBoxErro("Erro ao obter imagem: " + dadosRetorno.ToString());
             }
         }
 
@@ -123,13 +138,13 @@ namespace ServicosRedeN2
             //{//pegando o cabeçalho
             //    Uri usuarioUri = response.Headers.Location;
             //    //Pegando os dados do Rest e armazenando na variável usuários
-            //    var usuarios = response.Content.ReadAsStringAsync().Result;
-            //    txtDados.Text = usuarios.ToString();
+            //    var dadosRetorno = response.Content.ReadAsStringAsync().Result;
+            //    txtDados.Text = dadosRetorno.ToString();
 
             //}
             //else
             //{
-            //    var usuarios = response.Content.ReadAsStringAsync().Result;
+            //    var dadosRetorno = response.Content.ReadAsStringAsync().Result;
             //}
         }
 
@@ -143,13 +158,14 @@ namespace ServicosRedeN2
             {//pegando o cabeçalho
                 Uri usuarioUri = response.Headers.Location;
                 //Pegando os dados do Rest e armazenando na variável usuários
-                var usuarios = response.Content.ReadAsStringAsync().Result;
-                txtDados.Text = usuarios.ToString();
+                var dadosRetorno = response.Content.ReadAsStringAsync().Result;
+                msgBoxSucesso("Deletado com sucesso!");
+                //txtDados.Text = ;
             }
             else
             {
-                var usuarios = response.Content.ReadAsStringAsync().Result;
-                txtDados.Text = "erro: " + usuarios.ToString();
+                var dadosRetorno = response.Content.ReadAsStringAsync().Result;
+                msgBoxErro("Erro ao deletar: " + dadosRetorno.ToString());
             }
         }
 
@@ -163,16 +179,33 @@ namespace ServicosRedeN2
             {//pegando o cabeçalho
                 Uri usuarioUri = response.Headers.Location;
                 //Pegando os dados do Rest e armazenando na variável usuários
-                var usuarios = response.Content.ReadAsStringAsync().Result;
-                txtDados.Text = usuarios.ToString();
+                var dadosRetorno = response.Content.ReadAsStringAsync().Result;
+                msgBoxSucesso("Deletados com sucesso!");
             }
             else
             {
-                var usuarios = response.Content.ReadAsStringAsync().Result;
-                txtDados.Text = "erro: " + usuarios.ToString();
+                var dadosRetorno = response.Content.ReadAsStringAsync().Result;
+                msgBoxErro("Erro ao deletar: " + dadosRetorno.ToString());
             }
         }
 
+        class Container
+        {
+            public string Id { get; set; }
+            public string[] Names { get; set; }
+            public string Image { get; set; }
+            public Port[] Ports { get; set; }
+        }
+
+        class Port
+        {
+            public string IP { get; set; }
+            public int PrivatePort { get; set; }
+            public int PublicPort { get; set; }
+            public string Type { get; set; }
+        }
+        
+         
         public void FazGetAll(string rota)
         {
             PreApi();
@@ -183,13 +216,53 @@ namespace ServicosRedeN2
             {//pegando o cabeçalho
                 Uri usuarioUri = response.Headers.Location;
                 //Pegando os dados do Rest e armazenando na variável usuários
-                var usuarios = response.Content.ReadAsStringAsync().Result;
-                txtDados.Text = usuarios.ToString();
+                var dadosRetorno = response.Content.ReadAsStringAsync().Result;
+                //
+
+                if(rota == Rotas.GetAllContainers)
+                {
+                    Container[] containers = JsonSerializer.Deserialize<Container[]>(dadosRetorno.ToString());
+                    DataTable dt = new DataTable();
+                    dtDados.Columns.Clear();
+                    //dtDados.Rows.Clear();
+                    dt.Columns.Add("Nome");
+                    dt.Columns.Add("Imagem");
+                    dt.Columns.Add("IP");
+                    dt.Columns.Add("Porta Privada");
+                    dt.Columns.Add("Porta Publica");
+                    dt.Columns.Add("Type");
+                    dt.Columns.Add("Id");
+                    foreach (var item in containers)
+                    {
+                        dt.Rows.Add(item.Names[0].Trim('/'), item.Image, item.Ports[0].IP , item.Ports[0].PrivatePort.ToString(), item.Ports[0].PublicPort.ToString(), item.Ports[0].Type, item.Id);
+                        //txtDados.Text = txtDados.Text + Environment.NewLine + $"Id: {item.Id}, Imagem: {item.Image}, IP: {item.Ports[0].IP}, Porta Privada: {item.Ports[0].PrivatePort}, Porta Publica: {item.Ports[0].PublicPort}, Type: {item.Ports[0].Type}";
+                    }
+
+                    dtDados.DataSource = dt;
+                    //txtDados.Text = dadosRetorno.ToString();
+                }
+                else
+                {
+                    Imagem[] img = JsonSerializer.Deserialize<Imagem[]>(dadosRetorno.ToString());
+                    DataTable dt = new DataTable();
+                    dtDados.Columns.Clear();
+                    //dtDados.Rows.Clear();
+                    dt.Columns.Add("Nome da Imagem");
+                    dt.Columns.Add("Tag");
+                    foreach (var item in img)
+                    {
+                        dt.Rows.Add(item.RepoTags[0].Split(':')[0], item.RepoTags[0].Split(':')[1]);
+                        //cbxImg.Items.Add(item.RepoTags[0]);
+                    }
+                    dtDados.DataSource = dt;
+                    //txtDados.Text = dadosRetorno.ToString();
+                }
+
             }
             else
             {
-                var usuarios = response.Content.ReadAsStringAsync().Result;
-                txtDados.Text = "erro: " + usuarios.ToString();
+                var dadosRetorno = response.Content.ReadAsStringAsync().Result;
+                txtDados.Text = "erro: " + dadosRetorno.ToString();
             }
         }
 
@@ -203,8 +276,8 @@ namespace ServicosRedeN2
             {//pegando o cabeçalho
                 Uri usuarioUri = response.Headers.Location;
                 //Pegando os dados do Rest e armazenando na variável usuários
-                var usuarios = response.Content.ReadAsStringAsync().Result;
-                return usuarios.ToString();
+                var dadosRetorno = response.Content.ReadAsStringAsync().Result;
+                return dadosRetorno.ToString();
             }
             else
             {
@@ -257,6 +330,8 @@ namespace ServicosRedeN2
 
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            dtDados.Columns.Clear();
+            //dtDados.Rows.Clear();
             txtDados.Clear();
             cbxImg.Items.Clear();
             Imagem[] img = JsonSerializer.Deserialize<Imagem[]>(FazGetAllReturn(Rotas.GetAllImages));
