@@ -234,6 +234,8 @@ namespace ServicosRedeN2
                     dt.Columns.Add("Id");
                     foreach (var item in containers)
                     {
+                        if (item.Ports == null || item.Ports.Length == 0)
+                            item.Ports = new Port[] {new Port()};
                         dt.Rows.Add(item.Names[0].Trim('/'), item.Image, item.Ports[0].IP , item.Ports[0].PrivatePort.ToString(), item.Ports[0].PublicPort.ToString(), item.Ports[0].Type, item.Id);
                         //txtDados.Text = txtDados.Text + Environment.NewLine + $"Id: {item.Id}, Imagem: {item.Image}, IP: {item.Ports[0].IP}, Porta Privada: {item.Ports[0].PrivatePort}, Porta Publica: {item.Ports[0].PublicPort}, Type: {item.Ports[0].Type}";
                     }
