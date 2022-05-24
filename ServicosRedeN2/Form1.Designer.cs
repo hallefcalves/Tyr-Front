@@ -450,7 +450,7 @@
             this.txtUrl.Name = "txtUrl";
             this.txtUrl.Size = new System.Drawing.Size(210, 26);
             this.txtUrl.TabIndex = 25;
-            this.txtUrl.Text = "http://54.232.160.198:3001";
+            this.txtUrl.Text = "http://15.228.159.87:3001";
             // 
             // dtDados
             // 
